@@ -65,6 +65,7 @@ async def login(username, password, panel):
     finally:
         if page:
             await page.close()
+
 # 显式的浏览器关闭函数
 async def shutdown_browser():
     global browser
@@ -92,19 +93,22 @@ async def main():
         is_logged_in = await login(username, password, panel)
 
         now_beijing = format_to_iso(datetime.utcnow() + timedelta(hours=8))
+        # 构造面板+用户名的标识，例如 "s8-xhy7"
+        panel_username = f"{panel.split('.')[0].split('/')[0]}-{username}"
+
         if is_logged_in:
-            message += f"✅*{serviceName}*账号 *{username}* 于北京时间 {now_beijing}登录面板成功！\n\n"
-            print(f"{serviceName}账号 {username} 于北京时间 {now_beijing}登录面板成功！")
+            message += f"✅*{panel_username}* 于北京时间 {now_beijing} 登录面板成功！\n\n"
+            print(f"{panel_username} 于北京时间 {now_beijing} 登录面板成功！")
         else:
-            message += f"❌*{serviceName}*账号 *{username}* 于北京时间 {now_beijing}登录失败\n\n❗请检查*{username}*账号和密码是否正确。\n\n"
-            print(f"{serviceName}账号 {username} 登录失败，请检查{serviceName}账号和密码是否正确。")
+            message += f"❌*{panel_username}* 于北京时间 {now_beijing} 登录失败\n\n❗请检查*{username}*账号和密码是否正确。\n\n"
+            print(f"{panel_username} 登录失败，请检查账号和密码是否正确。")
 
         delay = random.randint(1000, 8000)
         await delay_time(delay)
         
     message += f"🔚脚本结束，如有异常点击下方按钮👇"
     await send_telegram_message(message)
-    print(f'所有{serviceName}账号登录完成！')
+    print(f'所有账号登录完成！')
     # 退出时关闭浏览器
     await shutdown_browser()
 
